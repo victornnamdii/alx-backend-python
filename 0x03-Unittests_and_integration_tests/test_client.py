@@ -97,54 +97,47 @@ class TestGithubOrgClient(unittest.TestCase):
         self.assertEqual(client_license, expected)
 
 
-@parameterized_class([
-    {
-        'org_payload': TEST_PAYLOAD[0][0],
-        'repos_payload': TEST_PAYLOAD[0][1],
-        'expected_repos': TEST_PAYLOAD[0][2],
-        'apache2_repos': TEST_PAYLOAD[0][3],
-    },
-])
+@parameterized_class(
+    ("org_payload", "repos_payload", "expected_repos", "apache2_repos"),
+    TEST_PAYLOAD
+)
 class TestIntegrationGithubOrgClient(unittest.TestCase):
-    """
-    Integration test for GithubOrgClient
-    """
+    """ Class for Integration test of fixtures """
+
     @classmethod
     def setUpClass(cls) -> None:
-        """
-        Before tests
-        """
-        attrs = {'return_value.json.side_effect':
-                 [
-                    cls.org_payload,
-                    cls.repos_payload,
-                    cls.expected_repos,
-                    cls.apache2_repos
-                 ]}
-        cls.get_patcher = patch('requests.get', **attrs)
+        """A class method called before tests in an individual class are run"""
+        config = {'return_value.json.side_effect':
+                  [
+                      cls.org_payload, cls.repos_payload,
+                      cls.org_payload, cls.repos_payload
+                  ]
+                  }
+        cls.get_patcher = patch('requests.get', **config)
+
         cls.mock = cls.get_patcher.start()
 
     def test_public_repos(self) -> None:
-        """
-        Testing GithubOrgClient.public_repos
-        """
-        self.assertEqual(
-            GithubOrgClient('google').public_repos(),
-            self.expected_repos
-        )
+        """ Integration test: public repos"""
+        test_class = GithubOrgClient("google")
+
+        self.assertEqual(test_class.org, self.org_payload)
+        self.assertEqual(test_class.repos_payload, self.repos_payload)
+        self.assertEqual(test_class.public_repos(), self.expected_repos)
+        self.assertEqual(test_class.public_repos("XLICENSE"), [])
+        self.mock.assert_called()
 
     def test_public_repos_with_license(self) -> None:
-        """
-        Testing GithubOrgClient.public_repos with license parsed
-        """
-        self.assertEqual(
-            GithubOrgClient('google').public_repos(license="apache-2.0"),
-            self.apache2_repos
-        )
+        """ Integration test for public repos with License """
+        test_class = GithubOrgClient("google")
+
+        self.assertEqual(test_class.public_repos(), self.expected_repos)
+        self.assertEqual(test_class.public_repos("XLICENSE"), [])
+        self.assertEqual(test_class.public_repos(
+            "apache-2.0"), self.apache2_repos)
+        self.mock.assert_called()
 
     @classmethod
     def tearDownClass(cls) -> None:
-        """
-        After Tests
-        """
+        """A class method called after tests in an individual class have run"""
         cls.get_patcher.stop()
