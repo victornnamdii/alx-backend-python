@@ -6,8 +6,9 @@ Learning Unittests and Integration Tests
 import unittest
 from unittest.mock import patch, Mock, PropertyMock
 from client import GithubOrgClient
-from parameterized import parameterized
+from parameterized import parameterized, parameterized_class
 from typing import Dict, Callable
+from fixtures import TEST_PAYLOAD
 
 
 class TestGithubOrgClient(unittest.TestCase):
@@ -94,3 +95,34 @@ class TestGithubOrgClient(unittest.TestCase):
         """
         client_license = GithubOrgClient.has_license(repo, license_key)
         self.assertEqual(client_license, expected)
+
+
+@parameterized_class([
+    ("org_payload", "repos_payload", "expected_repos", "apache2_repos"),
+    TEST_PAYLOAD
+])
+class TestIntegrationGithubOrgClient(unittest.TestCase):
+    """
+    Integration test for GithubOrgClient
+    """
+    @classmethod
+    def setUpClass(cls) -> None:
+        """
+        Before tests
+        """
+        attrs = {'return_value.json.side_effect':
+                 [
+                    cls.org_payload,
+                    cls.repos_payload,
+                    cls.expected_repos,
+                    cls.apache2_repos
+                 ]}
+        cls.get_patcher = patch('requests.get', **attrs)
+        cls.mock = cls.get_patcher.start()
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """
+        After Tests
+        """
+        cls.get_patcher.stop()
