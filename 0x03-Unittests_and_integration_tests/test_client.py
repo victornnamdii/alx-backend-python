@@ -138,7 +138,7 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         Testing GithubOrgClient.public_repos with license parsed
         """
         self.assertEqual(
-            GithubOrgClient('google').public_repos(license='apache-2.0'),
+            GithubOrgClient('google').public_repos(license="apache-2.0"),
             self.apache2_repos
         )
 
