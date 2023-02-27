@@ -129,14 +129,23 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         Testing GithubOrgClient.public_repos
         """
         test = GithubOrgClient('google').public_repos()
+
+        self.assertEqual(test.org, self.org_payload)
+        self.assertEqual(test.repos_payload, self.repos_payload)
         self.assertEqual(test, self.expected_repos)
+        self.assertEqual(test.public_repos("DUBA"), [])
+        self.mock.assert_called()
 
     def test_public_repos_with_license(self) -> None:
         """
         Testing GithubOrgClient.public_repos with license parsed
         """
         test = GithubOrgClient('google').public_repos('apache-2.0')
+
+        self.assertEqual(test, self.expected_repos)
+        self.assertEqual(test.public_repos("DUBA"), [])
         self.assertEqual(test, self.apache2_repos)
+        self.mock.assert_called()
 
     @classmethod
     def tearDownClass(cls) -> None:
