@@ -87,12 +87,8 @@ class TestGithubOrgClient(unittest.TestCase):
         ({"license": {"key": "my_license"}}, "my_license", True),
         ({"license": {"key": "other_license"}}, "my_license", False)
     ])
-    def test_has_license(
-        self,
-        repo: Dict[str, Dict],
-        license_key: str,
-        expected: bool
-    ) -> None:
+    def test_has_license(self, repo: Dict[str, Dict],
+                         license_key: str, expected: bool) -> None:
         """
         Testing GithubOrgClient.has_license
         """
