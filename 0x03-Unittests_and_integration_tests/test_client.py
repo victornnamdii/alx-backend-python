@@ -96,6 +96,5 @@ class TestGithubOrgClient(unittest.TestCase):
         """
         Testing GithubOrgClient.has_license
         """
-        org = GithubOrgClient("google")
-        client_license = org.has_license(repo, license_key)
+        client_license = GithubOrgClient.has_license(repo, license_key)
         self.assertEqual(client_license, expected)
